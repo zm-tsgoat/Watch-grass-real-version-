@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WATCH THE GRASS</title>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#101711;--panel:#1b281d;--green:#91f078;--gold:#ffd36a}
+body{margin:0;background:var(--bg);color:#f0f6eb;font-family:system-ui,Arial,sans-serif}
+button{cursor:pointer;border:0;border-radius:12px;padding:12px 15px;font-weight:800;font-size:14px;transition:.15s}
+button:active{transform:scale(.96)}
+button:disabled{opacity:.4;cursor:not-allowed}
+header{padding:20px;text-align:center;border-bottom:1px solid #ffffff12;background:#152019}
+h1{font-size:clamp(28px,7vw,45px);margin:0;letter-spacing:-2px}
+h1 span{color:var(--green)}
+header p{margin:6px;color:#9eafa0;font-size:13px}
+main{max-width:1000px;margin:auto;padding:18px;display:grid;gap:16px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.panel{background:var(--panel);border:1px solid #ffffff12;border-radius:18px;padding:16px}
+.stat-label{font-size:10px;color:#9eafa0;font-weight:900;letter-spacing:1.5px}
+.stat-value{font-size:clamp(20px,5vw,29px);font-weight:900;margin-top:5px}
+.lawn{position:relative;min-height:260px;overflow:hidden;border-radius:20px;background:linear-gradient(#c4e8e7 0%,#e2f0c4 62%,#a5d278 63%,#75b64f 100%);display:flex;align-items:flex-end;justify-content:center;padding-bottom:35px;border:2px solid #ffffff12}
+.sun{position:absolute;top:22px;right:28px;width:42px;height:42px;border-radius:50%;background:#ffe995;box-shadow:0 0 40px #fff2a0}
+.cloud{position:absolute;top:45px;left:12%;font-size:33px;opacity:.7}
+#grass{font-size:clamp(42px,12vw,100px);line-height:1.1;z-index:1;filter:drop-shadow(0 7px 1px #397b3766);transition:transform .2s}
+.lawn-label{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:11px;color:#254a28;font-weight:900;letter-spacing:2px}
+.lawn button{position:absolute;top:12px;left:12px;background:#ffffffbb;color:#29492a}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.primary{background:var(--green);color:#173018}
+.secondary{background:#304633;color:white;border:1px solid #ffffff12}
+.gold{background:var(--gold);color:#352b0c}
+.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+h2{font-size:17px;margin:0}
+.muted{font-size:12px;color:#9eafa0}
+.upgrades{display:grid;gap:9px}
+.upgrade{display:flex;align-items:center;gap:12px;background:#121d14;border:1px solid #ffffff12;border-radius:14px;padding:12px}
+.up-icon{font-size:27px;width:38px;text-align:center}
+.up-info{flex:1;min-width:0}
+.up-name{font-weight:850}
+.up-desc{font-size:11px;color:#9eafa0;margin-top:3px}
+.buy{background:#d8f6bd;color:#21371d;min-width:88px}
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#event{font-size:14px;line-height:1.5;color:#dbe8d7;min-height:44px}
+.achievement{padding:9px 0;border-bottom:1px solid #ffffff10;font-size:12px;color:#9eafa0}
+.achievement.unlocked{color:var(--gold)}
+#toast{position:fixed;top:15px;left:50%;transform:translate(-50%,-100px);background:#e2ffc9;color:#1b351b;padding:12px 18px;border-radius:12px;font-weight:900;z-index:5;transition:transform .3s;box-shadow:0 8px 30px #0005;text-align:center;width:max-content;max-width:90%}
+#toast.show{transform:translate(-50%,0)}
+footer{text-align:center;color:#728475;font-size:11px;padding:10px 20px 30px}
+@media(min-width:720px){main{grid-template-columns:1.15fr .85fr}.stats,.lawn,.actions{grid-column:1}.side{grid-column:2;grid-row:1 / span 3}.bottom-grid{grid-column:1 / -1}.lawn{min-height:320px}}
+@media(max-width:450px){.bottom-grid{grid-template-columns:1fr}.stats{gap:6px}.panel{padding:12px}.upgrade{padding:9px}.buy{min-width:76px;padding:10px 8px}}
+</style>
+</head>
+<body>
+<header>
+<h1>WATCH THE <span>GRASS</span></h1>
+<p>The most unnecessarily serious lawn simulator ever made.</p>
+</header>
+
+<main>
+<section class="stats">
+ <div class="panel"><div class="stat-label">GRASS</div><div class="stat-value" id="grassCount">0</div></div>
+ <div class="panel"><div class="stat-label">COINS</div><div class="stat-value" id="coins">0</div></div>
+ <div class="panel"><div class="stat-label">GROWTH / SEC</div><div class="stat-value" id="rate">0.0</div></div>
+</section>
+
+<section class="lawn">
+ <div class="sun"></div><div class="cloud">☁️</div>
+ <button onclick="water()">💧 Water it</button>
+ <div id="grass">🌱</div>
+ <div class="lawn-label" id="lawnLabel">YOUR VERY FIRST PATCH OF GRASS</div>
+</section>
+
+<section class="actions">
+ <button class="primary" onclick="water()">🌧️ WATER GRASS (+10)</button>
+ <button class="gold" onclick="collect()">🪙 COLLECT COINS</button>
+</section>
+
+<section class="panel side">
+ <div class="section-title"><h2>🛠️ Lawn upgrades</h2><span class="muted">BUY MORE GRASS</span></div>
+ <div class="upgrades" id="upgrades"></div>
+</section>
+
+<div class="bottom-grid">
+ <section class="panel">
+  <div class="section-title"><h2>📢 Latest news</h2><span class="muted">LIVE</span></div>
+  <div id="event">Nothing is happening. The grass is grassing.</div>
+  <button class="secondary" style="margin-top:12px;width:100%" onclick="randomEvent()">🎲 Cause an incident</button>
+ </section>
+ <section class="panel">
+  <div class="section-title"><h2>🏆 Achievements</h2><span class="muted" id="achCount">0/6</span></div>
+  <div id="achievements"></div>
+ </section>
+</div>
+</main>
+<footer>WATCH THE GRASS · Your lawn is saved automatically on this device.</footer>
+<div id="toast"></div>
+
+<script>
+const upgrades=[
+ {name:"Watering Can",icon:"🚿",desc:"+0.5 grass per second",base:25,power:.5},
+ {name:"Garden Sprinkler",icon:"💦",desc:"+3 grass per second",base:150,power:3},
+ {name:"Lawn Mower",icon:"🚜",desc+"":""}
+];
+</script>
+</body>
+</html>
